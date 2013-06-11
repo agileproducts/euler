@@ -7,55 +7,41 @@
 # The prime factors of 13195 are 5, 7, 13 and 29.
 # What is the largest prime factor of the number 600851475143 ?
 
-# get a list of primes smaller than sqroot of this
-# test whether each of them is a factor of the number
+# At first I thought I'd make a sieve to generate primes then 
+# factorise the number and compare each factor to the known prime list.
+# That was very slow. Instead factorise the number and test if each is prime.
 
-# generate list of primes using sieve of Eratosthenes
-
-def primes_less_than_root(n) #too slow!! It isn't a correct sieve at all!
-  u = Math::sqrt(n).floor
-  integers = (2..u).to_a
-  primes = integers
-  primes.each do |p|
-    primes.each do |i|
-      if i > p && i % p == 0 then primes.delete(i) end
-    end 
-  end
-  primes
+def simple_factorise(n)
+  possible_factors = (2..n).to_a
+  actual_factors = []
+  possible_factors.each { |i| if n % i == 0 then actual_factors.push i end }
+  actual_factors
 end
 
-def prime_factors(n) #
-  possible_prime_factors = primes_less_than_root(n)
+def prime_factorise(n)
+  possible_factors = (3..Math::sqrt(n).ceil).step(2).to_a #any odd number < root n could be a prime factor
   prime_factors = []
-  possible_prime_factors.each do |i|
-    if n % i == 0 then prime_factors.push i end
+  if n.even? then prime_factors.push 2 end #if n is even 2 is a prime factor
+  possible_factors.each do |i| 
+    if n % i == 0 then 
+      if isprime?(i) then prime_factors.push i end 
+    end
   end
   prime_factors
 end
 
-# #http://stackoverflow.com/questions/241691/sieve-of-eratosthenes-in-ruby
-def eratosthenes(n)
-  possible_primes = (0..n).to_a
-  possible_primes[0] = possible_primes[1] = nil
-  possible_primes.each do |p|
-    next unless p
-    break if p * p > n
-    (p*p).step(n, p) { |m| possible_primes[m] = nil }
+# take all the numbers small than root n
+# if any of them divide into n then it isn't prime
+def isprime?(n)
+  smaller_numbers = (2..Math::sqrt(n).ceil)
+  smaller_numbers.each do |i|
+    return true if n == 2
+    return false if n % i == 0
   end
-  possible_primes.compact
 end
 
-def prime_factors_e(n)
-  u = Math::sqrt(n).floor
-  primes = eratosthenes(n)
-  prime_factors = []
-  primes.each do |p|
-    if n % p == 0 then prime_factors.push p end
-  end
-  prime_factors
-end
 
 beginning = Time.now
-#puts prime_factors_e(851475144).inspect
-#puts prime_factors(600851475143).inspect
+#p simple_factorise(12)
+p prime_factorise(600851475143)
 puts "Time elapsed #{Time.now - beginning} seconds"
